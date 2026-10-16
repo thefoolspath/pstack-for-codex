@@ -25,7 +25,7 @@ Attach screenshots or videos when they prove a claim. Put full SHAs, lane receip
 
 **PR capability.** Use a supported built-in PR tool for operations it actually supports. Otherwise use the available forge CLI. Attach every created PR through the Codex artifact tool. External writes remain in the parent effect phase under the runtime contract.
 
-**Size and stacks.** Prefer five narrow PRs to one large PR. A stack is a linear base-branch chain. The root targets trunk. Each child rebases onto its parent's exact tip and targets the parent branch. The parent creates or retargets through the supported PR tool or resolved forge. Graphite is optional when installed and selected for the stack. Keep ordered membership and base/head pairs visible to reviewers. Branch from trunk only for independent work.
+**Size and stacks.** Prefer five narrow PRs to one large PR. A stack is a linear base-branch chain. The root targets trunk. Each child rebases onto its parent's exact tip and targets the parent branch. The parent creates or retargets through the supported PR tool or resolved forge. Graphite is optional when installed and selected for the stack. After a parent lands, the root retargets only the direct child to trunk and moves its patch onto the merge result under the Shipping playbook. Keep ordered membership and base/head pairs visible to reviewers. Branch from trunk only for independent work.
 
 **Readiness.** Open every PR ready, never as a draft. Set `draft: false` on PR API calls. If a PR still opens as a draft, run the host's ready command, such as `gh pr ready <number>`. Run `gh pr view <number>` before you refer to PR status.
 

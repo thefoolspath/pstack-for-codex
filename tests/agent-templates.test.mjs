@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -9,7 +10,7 @@ import { installAgents, scanAgentNames } from "../skills/setup-pstack/scripts/ma
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 async function fixture(t) {
-  const temporary = await fs.mkdtemp(path.join(process.env.TMPDIR ?? "/tmp", "pstack-agents-"));
+  const temporary = await fs.mkdtemp(path.join(tmpdir(), "pstack-agents-"));
   t.after(() => fs.rm(temporary, { recursive: true, force: true }));
   const projectRoot = path.join(temporary, "project");
   const userHome = path.join(temporary, "home");
@@ -24,7 +25,8 @@ test("portable prompt assets replace the legacy top-level personas", async () =>
 
   const poteto = await fs.readFile(path.join(root, "skills/poteto-mode/references/poteto-agent-prompt.md"), "utf8");
   const comments = await fs.readFile(path.join(root, "skills/no-comments/references/comment-sicko-prompt.md"), "utf8");
-  assert.match(poteto, /Read the `poteto-mode` skill's `SKILL\.md` in full/);
+  assert.match(poteto, /Read the full `poteto-mode` skill/);
+  assert.match(poteto, /exact absolute installed path supplied by the parent/);
   assert.match(comments, /Yes\.\.\. Ha ha ha\.\.\. Yes!/);
 });
 
@@ -35,7 +37,7 @@ test("project-scoped templates render supported Codex agent TOML", async (t) => 
   assert.equal(result.status, "installed");
   assert.equal(result.files.length, 2);
   for (const file of result.files) {
-    assert.match(file.path, /^\.codex\/agents\/pstack-/);
+    assert.match(file.path.replaceAll("\\", "/"), /^\.codex\/agents\/pstack-/);
     const content = await fs.readFile(path.join(projectRoot, file.path), "utf8");
     assert.match(content, /^name = "pstack-/m);
     assert.match(content, /^description = /m);

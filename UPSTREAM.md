@@ -1,13 +1,13 @@
 # Upstream maintenance
 
-This repository derives from `pstack` in `https://github.com/cursor/plugins`. The locked source is version `0.15.15` at commit `ccb5507cec1546dc88135c1139c811e6c59115ba`.
+This repository derives from `pstack` in `https://github.com/cursor/plugins`. The locked source is version `0.15.25` at commit `f713f14203cd6420cec13cd7c55c32d598dbab68`.
 
-The delivered repository contains only the modified Codex version. Do not push a raw upstream branch or snapshot commit. Do not keep an upstream remote in the delivered checkout.
+The delivered repository contains only the modified Codex version. Do not push a raw upstream branch or snapshot commit. Keep Lauren's raw source checkout temporary. A remote pointing to the Aqua Codex port may remain for comparison; it is distinct from Lauren's source.
 
 ## Provenance files
 
 - [`NOTICE`](./NOTICE) records attribution and the source commit.
-- [`upstream.lock.json`](./upstream.lock.json) records the 164 source paths, sizes, and SHA-256 hashes.
+- [`upstream.lock.json`](./upstream.lock.json) records the 169 source paths, sizes, and SHA-256 hashes.
 - [`compatibility/pstack-map.json`](./compatibility/pstack-map.json) assigns each source path a Codex path, classification, invariant, and validation. Its `refresh.fromFiles` inventory and `refreshDecisions` ledger prove the completed refresh delta.
 - [`compatibility/report.md`](./compatibility/report.md) is the generated human-readable report.
 
@@ -19,12 +19,12 @@ Use a temporary local source checkout. The import helper removes its own tempora
 node scripts/import-upstream.mjs \
   --source https://github.com/cursor/plugins \
   --subdirectory pstack \
-  --commit ccb5507cec1546dc88135c1139c811e6c59115ba \
+  --commit f713f14203cd6420cec13cd7c55c32d598dbab68 \
   --verify-lock \
   --dry-run
 ```
 
-The command must report `Verified 164 files`.
+The command must report `Verified 169 files`.
 
 ## Review a newer source commit
 
@@ -34,7 +34,7 @@ The command must report `Verified 164 files`.
 4. Port behavior into the Codex tree. Do not copy host-specific installation or runtime claims.
 5. Update the source metadata and hashes in `upstream.lock.json` only after review.
 6. Regenerate `compatibility/report.md` and run the full release checks.
-7. Delete the temporary source checkout. Confirm that the delivered repository has no upstream remote or raw source branch.
+7. Delete the temporary source checkout. Confirm that the delivered repository has no raw Lauren source branch or snapshot. Keep only the derived Codex changes.
 
 To inspect a candidate without changing the committed report, run:
 

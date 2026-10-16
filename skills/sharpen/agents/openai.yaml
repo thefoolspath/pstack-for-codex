@@ -1,0 +1,8 @@
+interface:
+  display_name: "Sharpen"
+  short_description: "Refocus work on the requested outcome"
+  default_prompt: "Use $sharpen to refocus the work on the requested outcome and choose the next useful action."
+policy:
+  allow_implicit_invocation: false
+  products:
+    - CODEX

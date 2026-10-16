@@ -4,6 +4,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { setTimeout as delay } from "node:timers/promises";
 
 export const STATE_SCHEMA = 1;
 export const DEFAULT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -57,7 +58,20 @@ async function atomicWrite(target, value) {
   await fs.mkdir(path.dirname(target), { recursive: true, mode: 0o700 });
   const temporary = `${target}.${process.pid}.${randomUUID()}.tmp`;
   await fs.writeFile(temporary, `${JSON.stringify(value)}\n`, { mode: 0o600 });
-  await fs.rename(temporary, target);
+  try {
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        await fs.rename(temporary, target);
+        break;
+      } catch (error) {
+        // Windows may briefly deny replacement while another hook holds the file.
+        if (process.platform !== "win32" || !["EPERM", "EACCES", "EBUSY"].includes(error.code) || attempt >= 8) throw error;
+        await delay(10 * (attempt + 1));
+      }
+    }
+  } finally {
+    await fs.rm(temporary, { force: true });
+  }
 }
 
 async function writeStateAndReceipt(targets, state, receipt) {

@@ -16,6 +16,8 @@ Subtract before you add. Remove the dead compatibility path before adding anothe
 Separate before serializing shared state. Give each writer its own worktree.
 ```
 
+Use Attack the Premise before repeating a fix built on the same failed assumption. Test Behavior, Not Implementation means checking the result through the real caller with an independently known expected outcome.
+
 The principle narrows the method. It does not add permission or a new deliverable.
 
 ## Find the full rule
@@ -26,7 +28,7 @@ The principles are grouped by purpose:
 - Architecture: [Model the Domain](../../skills/principle-model-the-domain/SKILL.md), [Boundary Discipline](../../skills/principle-boundary-discipline/SKILL.md), [Type System Discipline](../../skills/principle-type-system-discipline/SKILL.md), [Make Operations Idempotent](../../skills/principle-make-operations-idempotent/SKILL.md), [Migrate Callers Then Delete Legacy APIs](../../skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md), and [Separate Before Serializing Shared State](../../skills/principle-separate-before-serializing-shared-state/SKILL.md).
 - Verification and delegation: [Prove It Works](../../skills/principle-prove-it-works/SKILL.md), [Fix Root Causes](../../skills/principle-fix-root-causes/SKILL.md), [Sequence Verifiable Units](../../skills/principle-sequence-verifiable-units/SKILL.md), [Test Behavior, Not Implementation](../../skills/principle-test-behavior-not-implementation/SKILL.md), [Guard the Context Window](../../skills/principle-guard-the-context-window/SKILL.md), [Never Block on the Human](../../skills/principle-never-block-on-the-human/SKILL.md), and [Encode Lessons in Structure](../../skills/principle-encode-lessons-in-structure/SKILL.md).
 
-Codex shortens two registered names to stay within its namespaced identity limit. Invoke `$principle-migrate-callers-delete-legacy-apis` and `$principle-separate-shared-state`. The plugin keeps all 52 skills discoverable and drops none.
+Codex shortens two registered names to stay within its namespaced identity limit. Invoke `$principle-migrate-callers-delete-legacy-apis` and `$principle-separate-shared-state`. The plugin keeps all 55 skills discoverable and drops none.
 
 Next: [Make the workflows yours](./09-make-it-yours.md).
 

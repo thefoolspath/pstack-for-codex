@@ -1,12 +1,12 @@
 {
   "name": "pstack-for-codex",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Codex-native engineering workflows derived from pstack. Skills remain explicit-only so users retain workflow and authority control.",
   "author": {
     "name": "pstack-for-codex maintainers"
   },
-  "homepage": "https://github.com/Aqua-123/pstack-for-codex",
-  "repository": "https://github.com/Aqua-123/pstack-for-codex",
+  "homepage": "https://github.com/thefoolspath/pstack-for-codex",
+  "repository": "https://github.com/thefoolspath/pstack-for-codex",
   "license": "MIT",
   "keywords": [
     "pstack",
@@ -21,7 +21,7 @@
     "shortDescription": "Codex engineering workflows",
     "longDescription": "A Codex-native derivative of pstack for deliberate planning, implementation, review, verification, and orchestration. Every skill is explicit-only so workflow selection remains under user control.",
     "developerName": "pstack-for-codex maintainers",
-    "websiteURL": "https://github.com/Aqua-123/pstack-for-codex",
+    "websiteURL": "https://github.com/thefoolspath/pstack-for-codex",
     "category": "Developer Tools",
     "capabilities": [
       "Plan engineering work",

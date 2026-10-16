@@ -1,0 +1,8 @@
+interface:
+  display_name: "In your own words"
+  short_description: "Restate the task and intended outcome"
+  default_prompt: "Use $in-your-own-words to restate the task and what a successful result looks like."
+policy:
+  allow_implicit_invocation: false
+  products:
+    - CODEX
