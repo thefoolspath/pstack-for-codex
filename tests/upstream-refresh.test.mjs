@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { shellScript } from "./helpers/shell.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const checker = path.join(root, "skills/poteto-mode/scripts/check-plan.mjs");
@@ -12,7 +13,7 @@ const checker = path.join(root, "skills/poteto-mode/scripts/check-plan.mjs");
 test("plan checker accepts inherited or concrete Codex roles and rejects missing roles and stale cadence", async (context) => {
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), "pstack-plan-refresh-"));
   context.after(() => fs.rm(temporary, { recursive: true, force: true }));
-  const playbook = await fs.readFile(path.join(root, "skills/poteto-mode/playbooks/multi-phase-plan.md"), "utf8");
+  const playbook = (await fs.readFile(path.join(root, "skills/poteto-mode/playbooks/multi-phase-plan.md"), "utf8")).replaceAll("\r\n", "\n");
   const plan = playbook.split("````markdown\n")[1].split("\n````")[0].replace(/<[^>]+>/g, "fixture");
   const fixture = path.join(temporary, "plan.md");
   async function run(content) {
@@ -38,12 +39,12 @@ test("decision log initializes an empty file and preserves prior rows on append"
   const log = path.join(temporary, "decisions.tsv");
   const script = path.join(root, "skills/show-me-your-work/scripts/log.sh");
   await fs.writeFile(log, "");
-  const first = spawnSync(script, [log, "start", "first", "reason", "artifact", "passed"], { encoding: "utf8" });
+  const first = shellScript(script, [log, "start", "first", "reason", "artifact", "passed"]);
   assert.equal(first.status, 0, first.stderr);
   const original = await fs.readFile(log, "utf8");
   assert.equal(original.split("\n").filter(Boolean).length, 2);
   assert.equal(original.split("\n")[0], "ts\tphase\tdecision\twhy\tevidence\tresult");
-  const next = spawnSync(script, [log, "check", "=unsafe\tcell", "line\nbreak", "artifact", "passed"], { encoding: "utf8" });
+  const next = shellScript(script, [log, "check", "=unsafe\tcell", "line\nbreak", "artifact", "passed"]);
   assert.equal(next.status, 0, next.stderr);
   const current = await fs.readFile(log, "utf8");
   assert.equal(current.startsWith(original), true);
@@ -51,17 +52,20 @@ test("decision log initializes an empty file and preserves prior rows on append"
   assert.match(current, /'\=unsafe cell\tline break\tartifact\tpassed/);
 });
 
-test("refresh ledger pins every source delta and both additions", async () => {
+test("refresh ledger pins every source delta and all five additions", async () => {
   const map = JSON.parse(await fs.readFile(path.join(root, "compatibility/pstack-map.json"), "utf8"));
   const previous = new Map(map.refresh.fromFiles.map((entry) => [entry.path, entry.sha256]));
   const lock = JSON.parse(await fs.readFile(path.join(root, "upstream.lock.json"), "utf8"));
   const current = new Map(lock.files.map((entry) => [entry.path, entry.sha256]));
   const changed = [...current].filter(([name, hash]) => previous.get(name) !== hash);
-  assert.equal(changed.length, 27);
+  assert.equal(changed.length, 93);
   assert.deepEqual(new Set(map.refreshDecisions.map((entry) => entry.path)), new Set(changed.map(([name]) => name)));
   assert.deepEqual(map.refreshDecisions.filter((entry) => entry.kind === "added").map((entry) => entry.path).sort(), [
-    "skills/poteto-help/references/prompting.md",
-    "skills/poteto-help/references/recipes.md",
+    "plugin.json",
+    "skills/in-your-own-words/SKILL.md",
+    "skills/ketchup/SKILL.md",
+    "skills/poteto-mode/scripts/check-plan.test.ts",
+    "skills/sharpen/SKILL.md",
   ]);
   for (const decision of map.refreshDecisions) {
     assert.equal(decision.oldSha256, previous.get(decision.path) ?? null);

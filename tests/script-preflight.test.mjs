@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
+import { shellScript, shellOutput } from "./helpers/shell.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const scripts = join(root, "skills", "poteto-mode", "scripts");
@@ -54,7 +55,7 @@ test("tool launchers report the same missing Bun preflight", () => {
     join(scripts, "orch", "orch"),
     join(scripts, "watch-pr", "watch-pr"),
   ]) {
-    const result = spawnSync(launcher, ["--help"], {
+    const result = shellScript(launcher, ["--help"], {
       env: { ...process.env, PATH: fixture },
       encoding: "utf8",
     });
@@ -64,7 +65,7 @@ test("tool launchers report the same missing Bun preflight", () => {
       "Bun is required to run pstack-for-codex tools. Install Bun and retry.\n"
     );
   }
-  assert.deepEqual(execFileSync("find", [fixture, "-mindepth", "1"], { encoding: "utf8" }), "");
+  assert.deepEqual(readdirSync(fixture), []);
   rmSync(fixture, { recursive: true, force: true });
 });
 
@@ -90,36 +91,47 @@ test("worktree audit keeps nested and stale worktrees behind a task-use gate", (
   git("worktree", "add", "-b", "nested-work", nested);
 
   const script = join(scripts, "worktree-audit.sh");
-  const first = execFileSync(script, [repo], {
+  const first = shellOutput(script, [repo], {
     env: { ...process.env, PSTACK_SKIP_GITHUB: "1" },
     encoding: "utf8",
   });
   assert.match(first, /LAST_TASK_USE/);
   assert.match(first, /needs-task-check/);
-  assert.match(first, new RegExp(nested.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.ok(first.replaceAll("\\", "/").includes(nested.replaceAll("\\", "/")));
   assert.equal(existsSync(nested), true);
+
+  const explicit = shellOutput(script, ["--base", "main", repo], {
+    env: { ...process.env, PSTACK_SKIP_GITHUB: "1" },
+  });
+  assert.match(explicit, /# base: main/);
+  assert.match(explicit, /\tYES\t/);
+  const invalid = shellScript(script, ["-b", "missing-base", repo], {
+    env: { ...process.env, PSTACK_SKIP_GITHUB: "1" },
+  });
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /base ref not found/);
 
   rmSync(nested, { recursive: true, force: true });
   const before = git("worktree", "list", "--porcelain");
-  const second = execFileSync(script, [repo], {
+  const second = shellOutput(script, [repo], {
     env: { ...process.env, PSTACK_SKIP_GITHUB: "1" },
     encoding: "utf8",
   });
   const after = git("worktree", "list", "--porcelain");
   assert.match(second, /needs-task-check/);
   assert.equal(after, before);
-  assert.match(after, new RegExp(nested.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.ok(after.replaceAll("\\", "/").includes(nested.replaceAll("\\", "/")));
   rmSync(fixture, { recursive: true, force: true });
 });
 
 test("decision log rejects a directory target without modifying it", () => {
   const fixture = mkdtempSync(join(tmpdir(), "pstack-log-boundary-"));
   const script = join(root, "skills", "show-me-your-work", "scripts", "log.sh");
-  const before = execFileSync("find", [fixture, "-maxdepth", "1", "-print"], { encoding: "utf8" });
-  const result = spawnSync(script, [fixture, "phase", "decision", "why", "evidence", "result"], { encoding: "utf8" });
-  const after = execFileSync("find", [fixture, "-maxdepth", "1", "-print"], { encoding: "utf8" });
+  const before = readdirSync(fixture);
+  const result = shellScript(script, [fixture, "phase", "decision", "why", "evidence", "result"]);
+  const after = readdirSync(fixture);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /log path must name a file/);
-  assert.equal(after, before);
+  assert.deepEqual(after, before);
   rmSync(fixture, { recursive: true, force: true });
 });

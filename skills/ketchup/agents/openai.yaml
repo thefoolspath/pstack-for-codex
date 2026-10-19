@@ -1,0 +1,8 @@
+interface:
+  display_name: "Ketchup"
+  short_description: "Catch up on changes and pending decisions"
+  default_prompt: "Use $ketchup to summarize what changed in this chat and decisions waiting on me."
+policy:
+  allow_implicit_invocation: false
+  products:
+    - CODEX

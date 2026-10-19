@@ -51,7 +51,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 - **Laziness Protocol** (**principle-laziness-protocol**). Refactoring, sizing a diff, or tempted to add abstractions, layers, or signal threading. Bias to deletion and the smallest change that solves the problem.
 - **Foundational Thinking** (**principle-foundational-thinking**). Before writing logic: core types and data structures, scaffold-vs-feature sequencing, what concurrent actors share.
 - **Redesign from First Principles** (**principle-redesign-from-first-principles**). Integrating a new requirement into an existing design. Redesign as if it had been foundational from day one.
-- **Attack the Premise** (**principle-attack-the-premise**). Two or more fixes that share one premise have failed the same gate. Take a census of which actors hold the imbalance before the next fix, then question the premise instead of writing another fix that assumes it.
+- **Attack the Premise** (**principle-attack-the-premise**). Before fixing a symptom, re-check the premise and the requested outcome. If fixes sharing one premise fail the same gate, take a census of the actors holding the imbalance and challenge that premise before another fix.
 - **Subtract Before You Add** (**principle-subtract-before-you-add**). Sequencing an addition, refactor, or rewrite. Remove dead weight first, then build on the simpler base.
 - **Minimize Reader Load** (**principle-minimize-reader-load**). Reviewing or shaping code that's hard to trace. Count layers and hidden state, collapse one-caller wrappers, shrink mutable scope.
 - **Outcome-Oriented Execution** (**principle-outcome-oriented-execution**). Planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture, don't preserve throwaway compatibility states.
@@ -73,9 +73,9 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 - **Explain the Number** (**principle-explain-the-number**). Before trusting, reporting, or acting on a measured performance or eval number, name its limiter and rule out failed, skipped, untuned, or noisy work.
 
 - **Prove It Works** (**principle-prove-it-works**). After a task, before declaring done. Verify against the real artifact, not a proxy or "it compiles".
-- **Fix Root Causes** (**principle-fix-root-causes**). Debugging. Trace each symptom to its root cause, reproduce first, ask why until you reach it.
+- **Fix Root Causes** (**principle-fix-root-causes**). Debugging. Reproduce first, trace the first incorrect transition, and fix the cause at its source. Search for every site with the same defect and cover them in the regression proof.
 - **Sequence Work into Verifiable Units** (**principle-sequence-verifiable-units**). Multi-step work (sweeps, migrations, runs of similar edits) and how you stack commits and PRs. Break work into small units that each end in a check, verify each before the next, and order delivery so the sequence proves itself.
-- **Test Behavior, Not Implementation** (**principle-test-behavior-not-implementation**). Writing, changing, or keeping a test. Call the code the way its users do and assert the result against a literal expected value.
+- **Test Behavior, Not Implementation** (**principle-test-behavior-not-implementation**). Writing, changing, or keeping a test. Test a meaningful observable contract through its real caller. Assert an independently known outcome, not an implementation detail or a duplicate calculation.
 
 **Delegation**
 
@@ -99,6 +99,8 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 ## Subagents
 
 **Use the exact custom profile `pstack-poteto-agent` for playbook delegates when installed.** Otherwise use a generic delegate and include `references/poteto-agent-prompt.md` in its prompt. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) own their role choices. Model and effort remain separate, observable values. Inherit the parent when a configured pair cannot be validated.
+
+Include the resolved absolute path to the installed `skills/poteto-mode/SKILL.md` in each delegate prompt. The parent owns the playbook, task list, and dispatches; a delegate completes its bounded assignment rather than becoming another whole-playbook runner. Choose an observable supported model and effort pair for the job, preserving any user-requested profile or model family. Use a speed setting only if the active tool supports it. Never manufacture model slugs or fast variants; inherit when the pair cannot be validated.
 
 Follow `references/codex-agent-runtime.md` before dispatch. Prove write isolation first. The parent reviews actual results and produces the final summary. Steering, cancellation, retries, partial results, nested work, and unavailable capabilities use the contract's declared paths. A second opinion receives the same brief. A next work item starts with a fresh agent. An existing owner continues only for fixes to its current artifact or a single linear task that fits its context. Do not recycle a completed owner for unrelated queue items.
 

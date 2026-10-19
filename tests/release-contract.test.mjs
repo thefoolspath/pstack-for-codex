@@ -12,5 +12,7 @@ test("the default release gate includes offline verification and the installed C
   assert.equal(manifest.scripts.verify, "npm run verify:offline");
   assert.match(manifest.scripts["verify:release"], /npm run verify:offline/);
   assert.match(manifest.scripts["verify:release"], /npm run test:installed/);
-  assert.match(manifest.scripts["test:installed"], /PSTACK_RUN_INSTALLED_SMOKE=1/);
+  assert.equal(manifest.scripts["test:installed"], "node scripts/run-tests.mjs installed");
+  const runner = await fs.readFile(path.join(root, "scripts/run-tests.mjs"), "utf8");
+  assert.match(runner, /PSTACK_RUN_INSTALLED_SMOKE: mode === "installed" \? "1" : "0"/);
 });

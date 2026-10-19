@@ -1,0 +1,4 @@
+*.sh text eol=lf
+compatibility/report.md text eol=lf
+skills/poteto-mode/scripts/orch/orch text eol=lf
+skills/poteto-mode/scripts/watch-pr/watch-pr text eol=lf

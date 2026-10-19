@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -9,7 +10,7 @@ import { installAgents, uninstallAgents } from "../skills/setup-pstack/scripts/m
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 async function fixture(t) {
-  const temporary = await fs.mkdtemp(path.join(process.env.TMPDIR ?? "/tmp", "pstack-receipt-"));
+  const temporary = await fs.mkdtemp(path.join(tmpdir(), "pstack-receipt-"));
   t.after(() => fs.rm(temporary, { recursive: true, force: true }));
   const projectRoot = path.join(temporary, "project");
   const userHome = path.join(temporary, "home");
@@ -116,7 +117,7 @@ test("duplicate and missing role paths invalidate a setup receipt", async (t) =>
 test("user-scoped installs write only beneath the supplied Codex home", async (t) => {
   const { projectRoot, userHome } = await fixture(t);
   const installed = await installAgents({ pluginRoot: root, projectRoot, userHome, scope: "user" });
-  assert.ok(installed.files.every((file) => file.path.startsWith("agents/")));
+  assert.ok(installed.files.every((file) => file.path.replaceAll("\\", "/").startsWith("agents/")));
   for (const file of installed.files) await fs.stat(path.join(userHome, ".codex", file.path));
   await assert.rejects(fs.stat(path.join(projectRoot, ".codex/agents")), { code: "ENOENT" });
 });
